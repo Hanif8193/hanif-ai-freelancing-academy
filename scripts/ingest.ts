@@ -24,8 +24,8 @@ async function main() {
     console.log('');
 
     // Initialize providers via factory; vector store via the factory too
-    // (memory | chroma | postgres — set VECTOR_STORE_TYPE=postgres to ingest
-    // into the production pgvector database).
+    // (memory | chroma | turso — set VECTOR_STORE_TYPE=turso to ingest into
+    // the production Turso database).
     const embeddingProvider = createEmbeddingProvider(config);
 
     const vectorStore = createVectorStore(config);

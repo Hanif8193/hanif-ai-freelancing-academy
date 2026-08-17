@@ -137,11 +137,12 @@ export interface RAGConfig {
   geminiLlmModel: string;
 
   // Vector Store
-  vectorStoreType: 'memory' | 'chroma' | 'postgres';
+  vectorStoreType: 'memory' | 'chroma' | 'turso';
   chromaUrl?: string;
-  postgresUrl?: string;
-  pgvectorTable?: string;
-  pgvectorDimensions?: number;
+  tursoUrl?: string;
+  tursoAuthToken?: string;
+  tursoTable?: string;
+  vectorDimensions?: number;
 
   // RAG Settings
   chunkSize: number;

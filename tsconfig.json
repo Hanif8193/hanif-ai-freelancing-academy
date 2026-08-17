@@ -9,5 +9,10 @@
     "strict": true,
     "types": ["jest", "node"]
   },
-  "exclude": [".docusaurus", "build"]
+  "exclude": [
+    ".docusaurus",
+    "build",
+    // Archived PostgreSQL migration (superseded by Turso; preserved on disk for reversibility).
+    "scripts/migrate-pgvector.ts"
+  ]
 }

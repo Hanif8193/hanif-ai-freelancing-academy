@@ -1,65 +1,60 @@
-# M9 — Production Vector Database Checklist
+# M9 — Production Vector Database Checklist (Turso)
 
-> **Status**: M9 IMPLEMENTATION COMPLETE. All gates green (275/275 tests, typecheck 0, build SUCCESS). Production Supabase ingestion/deployment steps remain human actions (see Summary).
+> **Status**: M9 IMPLEMENTATION COMPLETE (Turso). All gates green (298/298 tests, typecheck 0, build SUCCESS). Turso Cloud setup + approved production ingestion remain human actions.
 
-## Audit (complete)
-- [x] Inspected `src/rag/providers/vector-store/` (interface, memory, chroma) — 7-method `VectorStore` interface documented
-- [x] Inspected `src/rag/services/` (retriever contract: embed → search → minScore 0.3; 0–1 cosine scores)
-- [x] Inspected `src/rag/config.ts` + `factory.ts` (no `createVectorStore` today; endpoints construct stores inline)
-- [x] Inspected `scripts/ingest.ts` + `src/rag/ingestion/pipeline.ts` (hardcoded InMemoryVectorStore; idempotency matches normalized paths only → stale backslash duplicates never cleaned)
-- [x] Inspected `data/vector-store.json` schema (array of 641 `{id, content, metadata, embedding}`; 768-dim; ~233 stale backslash-path duplicates; `chapter: "00"` on pre-fix chunks)
-- [x] Inspected embedding dimensions (Gemini 768 / OpenAI 1536; `getDimensions()` available)
-- [x] Inspected `src/tutor`, `src/translator`, `src/mcp`, `api/` (no vector-store coupling beyond the shared RAG stack)
-- [x] Verified no `pg` driver installed; `engines.node >= 20`
-- [x] Reviewed M1–M8 specs + README deployment docs
-
-## Specification Documents
-- [x] `spec.md` created
-- [x] `plan.md` created
-- [x] `tasks.md` created
-- [x] `checklist.md` created (this file)
-- [x] `summary.md` created
+## Decision (human-approved)
+- [x] PostgreSQL / Supabase / Neon / Railway / Render are **NOT used**
+- [x] **Turso Cloud** with **native vector search** is the production vector store
+- [x] Verified against the live DB: vec0 is unavailable, native `vector32`/`vector_distance_cos` are available → provider uses native vectors
+- [x] PostgreSQL implementation **preserved on disk** (reversible), removed from the active configuration
 
 ## Implementation (complete)
 
-### Phase 1: Dependency & Provider
-- [x] `pg@^8.23.0` + `@types/pg@^8.21.0` installed; tsx/ts-jest compatibility verified
-- [x] `src/rag/providers/vector-store/postgres.ts` — `PostgresVectorStore` implements all 7 methods (parameterized SQL; cosine scoring `1 - (embedding <=> $1::vector)`; filter→WHERE binding; safe error wrapping; lazy `max: 1` SSL pool; missing-table → "run migrate" error; connection string/password redacted from errors)
-- [x] `buildPgvectorSchemaSql` — idempotent DDL (extension, table, HNSW cosine index); validates table name + dimensions; never destructive
+### Provider
+- [x] `src/rag/providers/vector-store/turso.ts` — `TursoVectorStore` implements all 7 `VectorStore` methods (name/upsert/search/delete/get/count/reset) using the official `@libsql/client`
+- [x] Single table `hanif_academy_chunks` with a native `embedding BLOB` column (`vector32()`); search via `vector_distance_cos(embedding, vector32(?))` + `ORDER BY distance LIMIT ?`
+- [x] Cosine **distance → similarity** conversion: `similarity = 1 - distance`, clamped to [0, 1]; `Retriever.retrieve()` unchanged
+- [x] Fully parameterized SQL (filter values/content always bound); upsert = `INSERT … ON CONFLICT (id) DO UPDATE` with `vector32(?)`; embeddings validated before any write
+- [x] Lazy client (`createClient({ url, authToken })`); missing table → `Run npm run migrate:turso first`; token + URL redacted from all errors
 
-### Phase 2: Factory + Config
-- [x] `createVectorStore(config)` added to `src/rag/providers/factory.ts` (memory | chroma | postgres; existing exports untouched)
-- [x] `RAGConfig.vectorStoreType` gains `'postgres'`; added `postgresUrl`, `pgvectorTable` (default `hanif_academy_chunks`), `pgvectorDimensions`
-- [x] `validateConfig` requires `POSTGRES_URL` for postgres (and `CHROMA_URL` for chroma); `getVectorDimensions()` derives 768/1536 from the embedding provider (env-overridable)
-- [x] `.env.example` documents the new variables (placeholders only, `POSTGRES_URL` flagged SECRET)
+### Factory + Config
+- [x] `createVectorStore(config)` supports `memory | chroma | turso` (postgres case removed from the active switch)
+- [x] Config: `tursoUrl` (TURSO_DATABASE_URL), `tursoAuthToken` (TURSO_AUTH_TOKEN), `tursoTable` (TURSO_TABLE, default `hanif_academy_chunks`), `vectorDimensions` (VECTOR_DIMENSIONS)
+- [x] `validateConfig` requires TURSO_DATABASE_URL + TURSO_AUTH_TOKEN for turso; `getVectorDimensions` (Gemini 768 / OpenAI 1536, env-overridable)
+- [x] `.env.example` documents the Turso variables (`TURSO_AUTH_TOKEN` flagged SECRET)
 
-### Phase 3: Wire the construction path
-- [x] `src/rag/api/ask-endpoint.ts`, `src/tutor/api/tutor-endpoint.ts`, `src/mcp/services.ts` construct via `createVectorStore(config)` (memory/chroma behavior identical)
-- [x] `scripts/ingest.ts` uses the factory (a real `VECTOR_STORE_TYPE=postgres npm run ingest` is a separate approved production run)
+### Wiring
+- [x] `ask-endpoint.ts`, `tutor-endpoint.ts`, `mcp/services.ts`, `scripts/ingest.ts` construct the store via `createVectorStore(config)` (behavior unchanged for memory/chroma)
 
-### Phase 4: Migration script
-- [x] `scripts/migrate-pgvector.ts` + `npm run migrate:pgvector` — idempotent extension/table/index; dimension from `getVectorDimensions()`; prints table/dimension; requires `VECTOR_STORE_TYPE=postgres` + `POSTGRES_URL`
-- [x] Migration script NOT executed (no real database available/approved — expected)
+### Migration script
+- [x] `scripts/migrate-turso.ts` + `npm run migrate:turso` — idempotent (`CREATE TABLE IF NOT EXISTS` with `embedding BLOB`), non-destructive, plus safe additive `ALTER TABLE ADD COLUMN embedding BLOB` repair for the stale empty table
+- [x] **Not executed** against any real database (none provided/approved — expected)
 
-### Phase 5: Tests (mocked — zero real DB/API calls)
-- [x] `src/rag/providers/vector-store/__tests__/postgres.test.ts` — 20 tests (pool construction, upsert SQL/params, search cosine + topK + filters, get/delete/count/reset, error mapping, secret redaction, schema builder)
-- [x] `src/rag/__tests__/provider-factory.test.ts` extended — 11 new tests (`createVectorStore` ×4, `validateConfig` ×4, `getVectorDimensions` ×3)
-- [x] Full regression green — **275/275 tests pass (27 suites)** = 244 baseline + 31 new
+### Tests (all mocked — zero real Turso calls)
+- [x] `turso.test.ts` — 23 tests (client creation, upsert SQL/params + fail-fast, search conversion + clamping + topK + filters, get/delete/count/reset, empty results, missing-table error, token/URL redaction, schema builder)
+- [x] `provider-factory.test.ts` updated — createVectorStore (turso), validateConfig (turso requires URL + token), getVectorDimensions
+- [x] Full regression green — **298/298 tests (28 suites)**
 
-### Phase 6: Verify + Docs
-- [x] `npm test` 275/275 ✅ · `npm run typecheck` 0 errors ✅ · `npm run build` SUCCESS ✅
+### Verify + Docs
+- [x] `npm test` 298/298 ✅ · `npm run typecheck` 0 errors ✅ · `npm run build` SUCCESS ✅
 - [x] `data/vector-store.json` untouched — sha256 `234215a88b…` identical, mtime unchanged
-- [x] `npm run ingest` NOT executed · no real DB/API calls · no Supabase resources · no Vercel env changes · no deploy · no commits
-- [x] Checklist + summary + tasks + README updated
+- [x] `npm run ingest` NOT executed · no real Turso calls · no Turso Cloud resources · no Vercel env changes · no deploy · no commits
+- [x] Checklist + summary + tasks + plan + README updated
+
+## Verified Database State (read-only probe)
+- [x] `hanif_academy_chunks` table EXISTS but is **empty (0 rows)** — no partial rows from the failed Gemini ingestion
+- [x] vec0 module unavailable (`no such module: vec0`); native `vector32` + `vector_distance_cos` available
+- [x] `.env` duplicate `VECTOR_STORE_TYPE` key removed (memory was silently effective; now a single `memory` for local dev)
 
 ## Human Action Gate (deployment — pending)
-- [ ] Owner creates the Supabase project and sets Vercel env (`POSTGRES_URL`, `VECTOR_STORE_TYPE=postgres`)
-- [ ] Owner runs `npm run migrate:pgvector` against the Supabase connection string
-- [ ] Owner runs the approved production ingestion (`VECTOR_STORE_TYPE=postgres npm run ingest`) once the embedding quota is available
+- [ ] Owner sets env (`EMBEDDING_PROVIDER=openai`, `VECTOR_STORE_TYPE=turso`, `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `VECTOR_DIMENSIONS=1536`)
+- [ ] Owner runs `EMBEDDING_PROVIDER=openai VECTOR_STORE_TYPE=turso npm run migrate:turso` (additive repair adds the embedding column)
+- [ ] Owner approves + runs the fresh production ingestion (`EMBEDDING_PROVIDER=openai VECTOR_STORE_TYPE=turso npm run ingest`) once the OpenAI quota is available
 
 ## Boundary Guard
-- [x] No `src/rag` business-logic changes (interface, retriever, RAGService, pipeline, chunker, parser untouched)
-- [x] No Tutor/Translator/MCP-tools/API-adapter changes (only the shared vector-store construction path)
+- [x] `VectorStore` interface, retriever, RAGService, pipeline/chunker/parser untouched
+- [x] No Tutor/Translator/MCP-tools/API-adapter/frontend changes
 - [x] No auth/payments/remote MCP
-- [x] No real API/DB calls during tests
+- [x] No real Turso/API calls during tests
 - [x] No secrets committed/logged
+- [x] PostgreSQL implementation preserved on disk (reversible); `pg` deps retained for it

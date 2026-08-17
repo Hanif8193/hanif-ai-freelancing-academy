@@ -71,7 +71,7 @@ export async function createMcpServices(): Promise<McpServices> {
   const embeddingProvider = createEmbeddingProvider(config);
   const llmProvider = createLLMProvider(config);
 
-  // Vector store via the factory (memory | chroma | postgres)
+  // Vector store via the factory (memory | chroma | turso)
   const vectorStore = createVectorStore(config);
 
   const ragService = new RAGService(embeddingProvider, vectorStore, llmProvider, {

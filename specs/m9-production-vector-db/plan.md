@@ -2,9 +2,9 @@
 
 ## Overview
 
-Add a Supabase PostgreSQL + pgvector provider behind the existing `VectorStore` interface, a `createVectorStore` factory, config/validation, an idempotent migration script, and a fresh re-index path — so production Ask the Book, Tutor, and MCP retrieve the same Academy knowledge from a hosted DB while local development keeps the JSON store unchanged.
+Add a **Turso Cloud** vector store (native `vector32`/`vector_distance_cos` — vec0 was verified unavailable on the live database) behind the existing `VectorStore` interface, a `createVectorStore` factory, config/validation, an idempotent migration script, and a fresh re-index path — so production Ask the Book, Tutor, and MCP retrieve the same Academy knowledge from Turso while local development keeps the JSON store unchanged. (The earlier PostgreSQL/pgvector implementation is preserved on disk but is no longer the production choice.)
 
-**Current milestone status**: M9 implementation **COMPLETE** — all code tasks done and verified (275/275 tests, typecheck 0, build SUCCESS). Remaining steps are human deployment actions (Supabase project + Vercel env + approved production ingestion). See `checklist.md` / `summary.md` for the delivered state.
+**Current milestone status**: M9 implementation **COMPLETE (Turso)** — all code tasks done and verified (298/298 tests, typecheck 0, build SUCCESS). **Database decision (human-approved)**: Turso Cloud native vector search replaces the earlier PostgreSQL/pgvector approach; the postgres implementation is preserved on disk for reversibility. Remaining steps are human deployment actions (Turso Cloud database + token, Vercel env, approved production ingestion). See `checklist.md` / `summary.md` for the delivered state.
 
 ## Guiding Constraints
 
@@ -36,7 +36,7 @@ Add a Supabase PostgreSQL + pgvector provider behind the existing `VectorStore` 
 - `scripts/ingest.ts` — build the store via the factory so `VECTOR_STORE_TYPE=postgres npm run ingest` populates Supabase.
 
 ### Phase 4: Migration script
-- `scripts/migrate-pgvector.ts` (npm script `migrate:pgvector`) — idempotent `CREATE EXTENSION IF NOT EXISTS vector`, `CREATE TABLE IF NOT EXISTS … embedding vector(<dim>)` (dimension from `getDimensions()`, env-overridable), `CREATE INDEX IF NOT EXISTS … hnsw (embedding vector_cosine_ops)`; print dimension + table state; verify count after re-index.
+- `scripts/migrate-turso.ts` (npm script `migrate:turso`) — idempotent `CREATE TABLE IF NOT EXISTS hanif_academy_chunks` with a native `embedding BLOB` column (dimension from `getVectorDimensions()`, env-overridable — printed for confirmation); plus a safe additive `ALTER TABLE ADD COLUMN embedding BLOB` repair when a stale table lacks the column. No vec0 extension.
 
 ### Phase 5: Tests (all mocked)
 - `postgres.test.ts` (mocked `pg.Pool`): upsert/search/get/delete/count/reset SQL + params, score transform, filter translation, connection error mapping, missing-table error.

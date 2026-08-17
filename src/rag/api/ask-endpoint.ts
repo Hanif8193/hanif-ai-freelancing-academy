@@ -28,7 +28,7 @@ async function initializeRAG(): Promise<RAGService> {
     const embeddingProvider = createEmbeddingProvider(config);
     const llmProvider = createLLMProvider(config);
 
-    // Initialize vector store via the factory (memory | chroma | postgres)
+    // Initialize vector store via the factory (memory | chroma | turso)
     const vectorStore = createVectorStore(config);
 
     // Initialize RAG service

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hanif-ai-freelancing-academy.vercel.app/sitemap.xml

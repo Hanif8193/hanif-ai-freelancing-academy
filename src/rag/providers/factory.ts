@@ -47,16 +47,19 @@ export function createLLMProvider(config: RAGConfig): LLMProvider {
 }
 
 // M9 — Vector store factory
-// Production: VECTOR_STORE_TYPE=postgres · Local dev: VECTOR_STORE_TYPE=memory
-// Memory/chroma behavior is unchanged; postgres is new behind the same interface.
+// Production: VECTOR_STORE_TYPE=turso · Local dev: VECTOR_STORE_TYPE=memory
+// Memory/chroma behavior is unchanged; turso (Turso Cloud native vector search)
+// is the production choice. The earlier PostgreSQL implementation is preserved
+// on disk (src/rag/providers/vector-store/postgres.ts + migrate-pgvector.ts)
+// but is no longer constructed here — the switch is reversible.
 export function createVectorStore(config: RAGConfig): VectorStore {
   switch (config.vectorStoreType) {
-    case 'postgres': {
-      const { PostgresVectorStore } = require('./vector-store/postgres');
-      return new PostgresVectorStore({
-        url: config.postgresUrl || '',
-        table: config.pgvectorTable,
-        dimensions: config.pgvectorDimensions,
+    case 'turso': {
+      const { TursoVectorStore } = require('./vector-store/turso');
+      return new TursoVectorStore({
+        url: config.tursoUrl || '',
+        authToken: config.tursoAuthToken || '',
+        table: config.tursoTable,
       });
     }
     case 'chroma': {

@@ -53,7 +53,7 @@ describe('Provider Factory', () => {
     });
   });
 
-  // M9 — Vector store factory (memory | chroma | postgres)
+  // M9 — Vector store factory (memory | chroma | turso)
   describe('createVectorStore', () => {
     it('should create the in-memory store by default', () => {
       const store = createVectorStore(makeConfig({ vectorStoreType: 'memory' }));
@@ -67,33 +67,42 @@ describe('Provider Factory', () => {
       expect(store.name).toBe('chroma');
     });
 
-    it('should create the Postgres store when configured with a URL', () => {
+    it('should create the Turso store when configured with a URL + token', () => {
       const store = createVectorStore(
-        makeConfig({ vectorStoreType: 'postgres', postgresUrl: 'postgresql://u:p@h:5432/db' })
+        makeConfig({
+          vectorStoreType: 'turso',
+          tursoUrl: 'libsql://academy-test-org.turso.io',
+          tursoAuthToken: 'test-token',
+        })
       );
-      expect(store.name).toBe('postgres');
+      expect(store.name).toBe('turso');
     });
 
-    it('should throw a clear error for postgres without a URL', () => {
+    it('should throw a clear error for turso without a URL', () => {
       expect(() =>
-        createVectorStore(makeConfig({ vectorStoreType: 'postgres', postgresUrl: '' }))
-      ).toThrow('PostgresVectorStore requires a connection URL (POSTGRES_URL).');
+        createVectorStore(makeConfig({ vectorStoreType: 'turso', tursoUrl: '' }))
+      ).toThrow('TursoVectorStore requires a database URL (TURSO_DATABASE_URL).');
     });
   });
 
   // M9 — Configuration validation
   describe('validateConfig', () => {
-    it('requires POSTGRES_URL when VECTOR_STORE_TYPE=postgres', () => {
-      const config = makeConfig({ vectorStoreType: 'postgres', postgresUrl: '' });
+    it('requires TURSO_DATABASE_URL and TURSO_AUTH_TOKEN when VECTOR_STORE_TYPE=turso', () => {
+      const config = makeConfig({
+        vectorStoreType: 'turso',
+        tursoUrl: '',
+        tursoAuthToken: '',
+      });
       expect(() => validateConfig(config)).toThrow(
-        'POSTGRES_URL environment variable is required when VECTOR_STORE_TYPE=postgres'
+        'TURSO_DATABASE_URL and TURSO_AUTH_TOKEN environment variables are required when VECTOR_STORE_TYPE=turso'
       );
     });
 
-    it('accepts postgres with a URL', () => {
+    it('accepts turso with a URL and token', () => {
       const config = makeConfig({
-        vectorStoreType: 'postgres',
-        postgresUrl: 'postgresql://u:p@h:5432/db',
+        vectorStoreType: 'turso',
+        tursoUrl: 'libsql://academy-test-org.turso.io',
+        tursoAuthToken: 'test-token',
       });
       expect(() => validateConfig(config)).not.toThrow();
     });
@@ -110,7 +119,31 @@ describe('Provider Factory', () => {
     });
   });
 
-  // M9 — pgvector dimensions
+  // M9 — Provider/dimension compatibility guard.
+  // The embedding provider's getDimensions() must match getVectorDimensions()
+  // so the Turso schema/config always agrees with the vectors actually produced.
+  describe('embedding provider dimension compatibility', () => {
+    it('OpenAI text-embedding-3-small reports 1536 dimensions', () => {
+      const provider = createEmbeddingProvider(makeConfig({ embeddingProvider: 'openai' }));
+      expect(provider.getDimensions()).toBe(1536);
+    });
+
+    it('Gemini gemini-embedding-001 reports 768 dimensions', () => {
+      const provider = createEmbeddingProvider(makeConfig({ embeddingProvider: 'gemini' }));
+      expect(provider.getDimensions()).toBe(768);
+    });
+
+    it('provider dimensions match getVectorDimensions for both providers', () => {
+      for (const providerName of ['openai', 'gemini'] as const) {
+        const config = makeConfig({ embeddingProvider: providerName });
+        expect(createEmbeddingProvider(config).getDimensions()).toBe(
+          getVectorDimensions(config)
+        );
+      }
+    });
+  });
+
+  // M9 — Vector dimensions
   describe('getVectorDimensions', () => {
     it('derives 768 for Gemini', () => {
       expect(getVectorDimensions(makeConfig({ embeddingProvider: 'gemini' }))).toBe(768);
@@ -120,8 +153,8 @@ describe('Provider Factory', () => {
       expect(getVectorDimensions(makeConfig({ embeddingProvider: 'openai' }))).toBe(1536);
     });
 
-    it('lets PGVECTOR_DIMENSIONS override the provider default', () => {
-      const config = makeConfig({ embeddingProvider: 'gemini', pgvectorDimensions: 1024 });
+    it('lets VECTOR_DIMENSIONS override the provider default', () => {
+      const config = makeConfig({ embeddingProvider: 'gemini', vectorDimensions: 1024 });
       expect(getVectorDimensions(config)).toBe(1024);
     });
   });

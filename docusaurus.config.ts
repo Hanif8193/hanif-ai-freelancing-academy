@@ -23,8 +23,8 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'hanif-ai', // Usually your GitHub org/user name.
-  projectName: 'freelancing-academy', // Usually your repo name.
+  organizationName: 'Hanif8193', // Usually your GitHub org/user name.
+  projectName: 'hanif-ai-freelancing-academy', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -46,7 +46,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/hanif-ai/freelancing-academy/tree/main/',
+            'https://github.com/Hanif8193/hanif-ai-freelancing-academy/tree/main/',
         },
         blog: {
           showReadingTime: true,
@@ -57,7 +57,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/hanif-ai/freelancing-academy/tree/main/',
+            'https://github.com/Hanif8193/hanif-ai-freelancing-academy/tree/main/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -73,8 +73,9 @@ const config: Config = {
   plugins: [ragPlugin, tutorPlugin],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/hanif-ai-social-card.jpg',
+    // Open Graph / social sharing card (1200x630). Branded SVG; replace with a
+    // PNG export before launch for maximum social-platform support.
+    image: 'img/hanif-ai-social-card.svg',
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
@@ -134,7 +135,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://github.com/hanif-ai/freelancing-academy',
+          href: 'https://github.com/Hanif8193/hanif-ai-freelancing-academy',
           label: 'GitHub',
           position: 'right',
         },
@@ -165,15 +166,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/hanif-ai/freelancing-academy',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/example',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/hanif-ai',
+              href: 'https://github.com/Hanif8193/hanif-ai-freelancing-academy',
             },
           ],
         },
