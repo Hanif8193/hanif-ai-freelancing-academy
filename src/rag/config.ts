@@ -28,8 +28,11 @@ export function getConfig(): RAGConfig {
     geminiLlmModel: process.env.GEMINI_LLM_MODEL || 'gemini-2.5-flash',
 
     // Vector Store
-    vectorStoreType: (process.env.VECTOR_STORE_TYPE as 'memory' | 'chroma') || 'memory',
+    vectorStoreType: (process.env.VECTOR_STORE_TYPE as 'memory' | 'chroma' | 'postgres') || 'memory',
     chromaUrl: process.env.CHROMA_URL,
+    postgresUrl: process.env.POSTGRES_URL,
+    pgvectorTable: process.env.PGVECTOR_TABLE || 'hanif_academy_chunks',
+    pgvectorDimensions: parseInt(process.env.PGVECTOR_DIMENSIONS || '0', 10) || undefined,
 
     // RAG Settings
     chunkSize: parseInt(process.env.RAG_CHUNK_SIZE || '500', 10),
@@ -52,4 +55,23 @@ export function validateConfig(config: RAGConfig): void {
   if (config.llmProvider === 'gemini' && !config.geminiApiKey) {
     throw new Error('GEMINI_API_KEY environment variable is required when LLM_PROVIDER=gemini');
   }
+  if (config.vectorStoreType === 'chroma' && !config.chromaUrl) {
+    throw new Error('CHROMA_URL environment variable is required when VECTOR_STORE_TYPE=chroma');
+  }
+  if (config.vectorStoreType === 'postgres' && !config.postgresUrl) {
+    throw new Error('POSTGRES_URL environment variable is required when VECTOR_STORE_TYPE=postgres');
+  }
+}
+
+/**
+ * Effective embedding-vector dimensions for the pgvector schema.
+ * PGVECTOR_DIMENSIONS overrides; otherwise derived from the configured
+ * embedding provider (Gemini gemini-embedding-001 = 768, OpenAI
+ * text-embedding-3-small = 1536). No AI calls — pure metadata.
+ */
+export function getVectorDimensions(config: RAGConfig): number {
+  if (config.pgvectorDimensions && config.pgvectorDimensions > 0) {
+    return config.pgvectorDimensions;
+  }
+  return config.embeddingProvider === 'gemini' ? 768 : 1536;
 }

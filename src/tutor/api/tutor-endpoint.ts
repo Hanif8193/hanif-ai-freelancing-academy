@@ -5,8 +5,7 @@
 import type { Request, Response } from 'express';
 import { getConfig, validateConfig } from '../../rag/config';
 import { mapProviderError } from '../../rag/errors';
-import { createEmbeddingProvider, createLLMProvider } from '../../rag/providers/factory';
-import { InMemoryVectorStore } from '../../rag/providers/vector-store/memory';
+import { createEmbeddingProvider, createLLMProvider, createVectorStore } from '../../rag/providers/factory';
 import { RAGService } from '../../rag/services/rag-service';
 import { isLanguage, isLevel, isTutorMode } from '../intent';
 import { TutorService } from '../TutorService';
@@ -32,15 +31,8 @@ async function initializeTutor(): Promise<TutorService> {
   const embeddingProvider = createEmbeddingProvider(config);
   const llmProvider = createLLMProvider(config);
 
-  let vectorStore;
-  if (config.vectorStoreType === 'chroma' && config.chromaUrl) {
-    const { ChromaVectorStore } = await import('../../rag/providers/vector-store/chroma');
-    vectorStore = new ChromaVectorStore({ url: config.chromaUrl });
-  } else {
-    vectorStore = new InMemoryVectorStore({
-      persistPath: 'data/vector-store.json',
-    });
-  }
+  // Vector store via the factory (memory | chroma | postgres)
+  const vectorStore = createVectorStore(config);
 
   const ragService = new RAGService(embeddingProvider, vectorStore, llmProvider, {
     topK: config.topK,

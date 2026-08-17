@@ -4,6 +4,7 @@
 import type { RAGConfig } from '../types';
 import type { EmbeddingProvider } from './embedding/interface';
 import type { LLMProvider } from './llm/interface';
+import type { VectorStore } from './vector-store/interface';
 
 export function createEmbeddingProvider(config: RAGConfig): EmbeddingProvider {
   switch (config.embeddingProvider) {
@@ -41,6 +42,31 @@ export function createLLMProvider(config: RAGConfig): LLMProvider {
         apiKey: config.openaiApiKey,
         model: config.openaiLlmModel,
       });
+    }
+  }
+}
+
+// M9 — Vector store factory
+// Production: VECTOR_STORE_TYPE=postgres · Local dev: VECTOR_STORE_TYPE=memory
+// Memory/chroma behavior is unchanged; postgres is new behind the same interface.
+export function createVectorStore(config: RAGConfig): VectorStore {
+  switch (config.vectorStoreType) {
+    case 'postgres': {
+      const { PostgresVectorStore } = require('./vector-store/postgres');
+      return new PostgresVectorStore({
+        url: config.postgresUrl || '',
+        table: config.pgvectorTable,
+        dimensions: config.pgvectorDimensions,
+      });
+    }
+    case 'chroma': {
+      const { ChromaVectorStore } = require('./vector-store/chroma');
+      return new ChromaVectorStore({ url: config.chromaUrl });
+    }
+    case 'memory':
+    default: {
+      const { InMemoryVectorStore } = require('./vector-store/memory');
+      return new InMemoryVectorStore({ persistPath: 'data/vector-store.json' });
     }
   }
 }

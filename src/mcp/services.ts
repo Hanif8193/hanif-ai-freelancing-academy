@@ -59,8 +59,7 @@ export async function createMcpServices(): Promise<McpServices> {
   }
 
   const { getConfig, validateConfig } = await import('../rag/config');
-  const { createEmbeddingProvider, createLLMProvider } = await import('../rag/providers/factory');
-  const { InMemoryVectorStore } = await import('../rag/providers/vector-store/memory');
+  const { createEmbeddingProvider, createLLMProvider, createVectorStore } = await import('../rag/providers/factory');
   const { RAGService } = await import('../rag/services/rag-service');
   const { TutorService } = await import('../tutor/TutorService');
   const { TranslatorAgentImpl } = await import('../translator/TranslatorAgentImpl');
@@ -72,13 +71,8 @@ export async function createMcpServices(): Promise<McpServices> {
   const embeddingProvider = createEmbeddingProvider(config);
   const llmProvider = createLLMProvider(config);
 
-  let vectorStore;
-  if (config.vectorStoreType === 'chroma' && config.chromaUrl) {
-    const { ChromaVectorStore } = await import('../rag/providers/vector-store/chroma');
-    vectorStore = new ChromaVectorStore({ url: config.chromaUrl });
-  } else {
-    vectorStore = new InMemoryVectorStore({ persistPath: 'data/vector-store.json' });
-  }
+  // Vector store via the factory (memory | chroma | postgres)
+  const vectorStore = createVectorStore(config);
 
   const ragService = new RAGService(embeddingProvider, vectorStore, llmProvider, {
     topK: config.topK,

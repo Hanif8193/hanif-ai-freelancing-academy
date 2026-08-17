@@ -3,8 +3,7 @@
 
 import dotenv from 'dotenv';
 import { getConfig, validateConfig } from '../src/rag/config';
-import { createEmbeddingProvider } from '../src/rag/providers/factory';
-import { InMemoryVectorStore } from '../src/rag/providers/vector-store/memory';
+import { createEmbeddingProvider, createVectorStore } from '../src/rag/providers/factory';
 import { IngestionPipeline } from '../src/rag/ingestion/pipeline';
 
 // Load environment variables
@@ -24,12 +23,12 @@ async function main() {
     console.log(`  - Chunk Overlap: ${config.chunkOverlap}`);
     console.log('');
 
-    // Initialize providers via factory
+    // Initialize providers via factory; vector store via the factory too
+    // (memory | chroma | postgres — set VECTOR_STORE_TYPE=postgres to ingest
+    // into the production pgvector database).
     const embeddingProvider = createEmbeddingProvider(config);
 
-    const vectorStore = new InMemoryVectorStore({
-      persistPath: 'data/vector-store.json',
-    });
+    const vectorStore = createVectorStore(config);
 
     const pipeline = new IngestionPipeline(
       embeddingProvider,

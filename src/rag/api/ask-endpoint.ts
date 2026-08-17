@@ -6,8 +6,7 @@ import type { Request, Response } from 'express';
 import type { RAGConfig } from '../config';
 import { getConfig, validateConfig } from '../config';
 import { mapProviderError } from '../errors';
-import { createEmbeddingProvider, createLLMProvider } from '../providers/factory';
-import { InMemoryVectorStore } from '../providers/vector-store/memory';
+import { createEmbeddingProvider, createLLMProvider, createVectorStore } from '../providers/factory';
 import { RAGService } from '../services/rag-service';
 import type { AskRequest } from '../types';
 
@@ -29,16 +28,8 @@ async function initializeRAG(): Promise<RAGService> {
     const embeddingProvider = createEmbeddingProvider(config);
     const llmProvider = createLLMProvider(config);
 
-    // Initialize vector store based on config
-    let vectorStore;
-    if (config.vectorStoreType === 'chroma' && config.chromaUrl) {
-      const { ChromaVectorStore } = await import('../providers/vector-store/chroma');
-      vectorStore = new ChromaVectorStore({ url: config.chromaUrl });
-    } else {
-      vectorStore = new InMemoryVectorStore({
-        persistPath: 'data/vector-store.json',
-      });
-    }
+    // Initialize vector store via the factory (memory | chroma | postgres)
+    const vectorStore = createVectorStore(config);
 
     // Initialize RAG service
     ragService = new RAGService(

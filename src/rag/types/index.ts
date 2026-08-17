@@ -137,8 +137,11 @@ export interface RAGConfig {
   geminiLlmModel: string;
 
   // Vector Store
-  vectorStoreType: 'memory' | 'chroma';
+  vectorStoreType: 'memory' | 'chroma' | 'postgres';
   chromaUrl?: string;
+  postgresUrl?: string;
+  pgvectorTable?: string;
+  pgvectorDimensions?: number;
 
   // RAG Settings
   chunkSize: number;
