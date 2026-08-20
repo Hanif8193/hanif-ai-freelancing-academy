@@ -5,3 +5,5 @@ export { OpenAIEmbeddingProvider } from './openai';
 export type { OpenAIEmbeddingConfig } from './openai';
 export { GeminiEmbeddingProvider } from './gemini';
 export type { GeminiEmbeddingConfig } from './gemini';
+export { OllamaEmbeddingProvider } from './ollama';
+export type { OllamaEmbeddingConfig } from './ollama';

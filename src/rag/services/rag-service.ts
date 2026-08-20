@@ -15,7 +15,7 @@ export interface RAGServiceConfig {
 const DEFAULT_CONFIG: RAGServiceConfig = {
   topK: 5,
   maxContextTokens: 4000,
-  minScore: 0.3,
+  minScore: 0.5,
 };
 
 const SYSTEM_PROMPT = `You are an AI assistant for the Hanif AI Freelancing Academy. Your role is to answer questions about freelancing, AI development tools, and spec-driven development based on the provided course content.

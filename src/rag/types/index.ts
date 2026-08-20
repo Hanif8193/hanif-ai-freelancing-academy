@@ -123,7 +123,7 @@ export interface MetadataFilter {
 
 export interface RAGConfig {
   // Provider selection
-  embeddingProvider: 'openai' | 'gemini';
+  embeddingProvider: 'openai' | 'gemini' | 'ollama';
   llmProvider: 'openai' | 'gemini';
 
   // OpenAI
@@ -135,6 +135,10 @@ export interface RAGConfig {
   geminiApiKey: string;
   geminiEmbeddingModel: string;
   geminiLlmModel: string;
+
+  // Ollama
+  ollamaBaseUrl: string;
+  ollamaEmbeddingModel: string;
 
   // Vector Store
   vectorStoreType: 'memory' | 'chroma' | 'turso';

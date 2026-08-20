@@ -5,7 +5,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 // Ensure .env is loaded regardless of how this module is imported
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true });
 
 import type { RAGConfig } from './types';
 
@@ -14,7 +14,7 @@ export type { RAGConfig };
 export function getConfig(): RAGConfig {
   return {
     // Provider selection
-    embeddingProvider: (process.env.EMBEDDING_PROVIDER as 'openai' | 'gemini') || 'openai',
+    embeddingProvider: (process.env.EMBEDDING_PROVIDER as 'openai' | 'gemini' | 'ollama') || 'openai',
     llmProvider: (process.env.LLM_PROVIDER as 'openai' | 'gemini') || 'openai',
 
     // OpenAI
@@ -25,7 +25,11 @@ export function getConfig(): RAGConfig {
     // Gemini
     geminiApiKey: process.env.GEMINI_API_KEY || '',
     geminiEmbeddingModel: process.env.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001',
-    geminiLlmModel: process.env.GEMINI_LLM_MODEL || 'gemini-2.5-flash',
+    geminiLlmModel: process.env.GEMINI_LLM_MODEL || 'gemini-3.6-flash',
+
+    // Ollama
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaEmbeddingModel: process.env.OLLAMA_EMBEDDING_MODEL || 'nomic-embed-text',
 
     // Vector Store
     vectorStoreType: (process.env.VECTOR_STORE_TYPE as 'memory' | 'chroma' | 'turso') || 'memory',
@@ -56,6 +60,9 @@ export function validateConfig(config: RAGConfig): void {
   if (config.llmProvider === 'gemini' && !config.geminiApiKey) {
     throw new Error('GEMINI_API_KEY environment variable is required when LLM_PROVIDER=gemini');
   }
+  if (config.embeddingProvider === 'ollama' && !config.ollamaBaseUrl) {
+    throw new Error('OLLAMA_BASE_URL environment variable is required when EMBEDDING_PROVIDER=ollama');
+  }
   if (config.vectorStoreType === 'chroma' && !config.chromaUrl) {
     throw new Error('CHROMA_URL environment variable is required when VECTOR_STORE_TYPE=chroma');
   }
@@ -76,5 +83,7 @@ export function getVectorDimensions(config: RAGConfig): number {
   if (config.vectorDimensions && config.vectorDimensions > 0) {
     return config.vectorDimensions;
   }
-  return config.embeddingProvider === 'gemini' ? 768 : 1536;
+  if (config.embeddingProvider === 'gemini') return 768;
+  if (config.embeddingProvider === 'ollama') return 768;
+  return 1536;
 }

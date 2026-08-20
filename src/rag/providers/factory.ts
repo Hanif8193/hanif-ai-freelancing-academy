@@ -13,6 +13,15 @@ export function createEmbeddingProvider(config: RAGConfig): EmbeddingProvider {
       return new GeminiEmbeddingProvider({
         apiKey: config.geminiApiKey,
         model: config.geminiEmbeddingModel,
+        dimensions: config.vectorDimensions,
+      });
+    }
+    case 'ollama': {
+      const { OllamaEmbeddingProvider } = require('./embedding/ollama');
+      return new OllamaEmbeddingProvider({
+        baseUrl: config.ollamaBaseUrl,
+        model: config.ollamaEmbeddingModel,
+        dimensions: config.vectorDimensions,
       });
     }
     case 'openai':
@@ -21,6 +30,7 @@ export function createEmbeddingProvider(config: RAGConfig): EmbeddingProvider {
       return new OpenAIEmbeddingProvider({
         apiKey: config.openaiApiKey,
         model: config.openaiEmbeddingModel,
+        dimensions: config.vectorDimensions,
       });
     }
   }

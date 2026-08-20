@@ -19,7 +19,7 @@ export class GeminiLLMProvider implements LLMProvider {
 
   constructor(config: GeminiLLMConfig) {
     this.client = new GoogleGenAI({ apiKey: config.apiKey });
-    this.model = config.model || 'gemini-2.5-flash';
+    this.model = config.model || 'gemini-3.6-flash';
     this.temperature = config.temperature ?? 0.3;
     this.maxTokens = config.maxTokens || 1000;
   }

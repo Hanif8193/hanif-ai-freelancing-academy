@@ -18,7 +18,12 @@ async function main() {
 
     console.log('Configuration:');
     console.log(`  - Embedding Provider: ${config.embeddingProvider}`);
-    console.log(`  - Embedding Model: ${config.embeddingProvider === 'gemini' ? config.geminiEmbeddingModel : config.openaiEmbeddingModel}`);
+    const embeddingModel = config.embeddingProvider === 'gemini'
+      ? config.geminiEmbeddingModel
+      : config.embeddingProvider === 'ollama'
+        ? config.ollamaEmbeddingModel
+        : config.openaiEmbeddingModel;
+    console.log(`  - Embedding Model: ${embeddingModel}`);
     console.log(`  - Chunk Size: ${config.chunkSize}`);
     console.log(`  - Chunk Overlap: ${config.chunkOverlap}`);
     console.log('');

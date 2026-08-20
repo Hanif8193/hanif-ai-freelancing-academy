@@ -18,10 +18,8 @@
 import dotenv from 'dotenv';
 import { createClient } from '@libsql/client';
 import type { Client } from '@libsql/client';
-import { getConfig, validateConfig, getVectorDimensions } from '../src/rag/config';
-import { buildTursoSchemaSql } from '../src/rag/providers/vector-store/turso';
 
-dotenv.config();
+dotenv.config({ path: '.env.local', override: true });
 
 /** Read a column by name from an array-like libsql row. */
 function column(result: { columns: string[]; rows: ArrayLike<unknown>[] }, name: string): unknown {
@@ -46,6 +44,9 @@ async function main() {
   console.log('Starting Turso schema migration...\n');
 
   try {
+    const { getConfig, validateConfig, getVectorDimensions } = await import('../src/rag/config');
+    const { buildTursoSchemaSql } = await import('../src/rag/providers/vector-store/turso');
+
     const config = getConfig();
     validateConfig(config);
 

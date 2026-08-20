@@ -15,6 +15,8 @@ function makeConfig(overrides: Partial<RAGConfig> = {}): RAGConfig {
     geminiApiKey: 'gemini-test',
     geminiEmbeddingModel: 'gemini-embedding-001',
     geminiLlmModel: 'gemini-2.0-flash',
+    ollamaBaseUrl: 'http://localhost:11434',
+    ollamaEmbeddingModel: 'nomic-embed-text',
     vectorStoreType: 'memory',
     chunkSize: 500,
     chunkOverlap: 100,
@@ -36,6 +38,12 @@ describe('Provider Factory', () => {
       const config = makeConfig({ embeddingProvider: 'gemini' });
       const provider = createEmbeddingProvider(config);
       expect(provider.name).toBe('gemini');
+    });
+
+    it('should create Ollama embedding provider', () => {
+      const config = makeConfig({ embeddingProvider: 'ollama' });
+      const provider = createEmbeddingProvider(config);
+      expect(provider.name).toBe('ollama');
     });
   });
 
@@ -133,8 +141,8 @@ describe('Provider Factory', () => {
       expect(provider.getDimensions()).toBe(768);
     });
 
-    it('provider dimensions match getVectorDimensions for both providers', () => {
-      for (const providerName of ['openai', 'gemini'] as const) {
+    it('provider dimensions match getVectorDimensions for all providers', () => {
+      for (const providerName of ['openai', 'gemini', 'ollama'] as const) {
         const config = makeConfig({ embeddingProvider: providerName });
         expect(createEmbeddingProvider(config).getDimensions()).toBe(
           getVectorDimensions(config)
@@ -147,6 +155,10 @@ describe('Provider Factory', () => {
   describe('getVectorDimensions', () => {
     it('derives 768 for Gemini', () => {
       expect(getVectorDimensions(makeConfig({ embeddingProvider: 'gemini' }))).toBe(768);
+    });
+
+    it('derives 768 for Ollama', () => {
+      expect(getVectorDimensions(makeConfig({ embeddingProvider: 'ollama' }))).toBe(768);
     });
 
     it('derives 1536 for OpenAI', () => {
