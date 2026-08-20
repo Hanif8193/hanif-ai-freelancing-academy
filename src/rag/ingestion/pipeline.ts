@@ -47,8 +47,18 @@ export class IngestionPipeline {
       console.log(`Loaded ${documents.length} documents`);
 
       // Process each document
-      for (const doc of documents) {
+      // Gemini free-tier quota is 100 requests/minute; a large document can
+      // consume most of it. Pause between documents so the quota resets.
+      const needsInterDocDelay = this.embeddingProvider.name === 'gemini';
+      for (let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
         try {
+          // Wait for quota reset between documents (skip first document).
+          if (needsInterDocDelay && i > 0) {
+            const delayMs = 65_000; // 65 s — slightly over the 60 s quota window
+            console.log(`  Waiting ${delayMs / 1000}s for Gemini quota reset...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
           await this.processDocument(doc, result);
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : String(error);

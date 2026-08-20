@@ -12,7 +12,7 @@ export interface GeminiEmbeddingConfig {
   dimensions?: number;
   /** Max retries for transient rate limits (default 3, conservative). */
   maxRetries?: number;
-  /** Base delay in ms for exponential backoff (default 2000). */
+  /** Base delay in ms for exponential backoff (default 65000 — one quota window). */
   retryBaseDelayMs?: number;
 }
 
@@ -29,7 +29,7 @@ export class GeminiEmbeddingProvider implements EmbeddingProvider {
     this.model = config.model || 'gemini-embedding-001';
     this.dimensions = config.dimensions || 768;
     this.maxRetries = config.maxRetries ?? 3;
-    this.baseDelayMs = config.retryBaseDelayMs ?? 2000;
+    this.baseDelayMs = config.retryBaseDelayMs ?? 65_000;
   }
 
   private async retryWithBackoff<T>(fn: () => Promise<T>): Promise<T> {
@@ -73,27 +73,46 @@ export class GeminiEmbeddingProvider implements EmbeddingProvider {
     return embedding;
   }
 
+  /** Gemini free-tier batch limit is 100 requests per call. */
+  private static readonly BATCH_SIZE = 100;
+
+  /** Delay between batches to avoid per-minute rate limits. */
+  private static readonly BATCH_DELAY_MS = 1500;
+
   async embedBatch(texts: string[]): Promise<number[][]> {
     const filteredTexts = texts.filter(t => t.trim().length > 0);
     if (filteredTexts.length === 0) {
       return [];
     }
 
-    const response = await this.retryWithBackoff(() =>
-      this.client.models.embedContent({
-        model: this.model,
-        contents: filteredTexts,
-        config: {
-          outputDimensionality: this.dimensions,
-        },
-      })
-    );
+    // Split into chunks that respect Gemini's 100-request batch limit.
+    const allEmbeddings: number[][] = [];
+    for (let i = 0; i < filteredTexts.length; i += GeminiEmbeddingProvider.BATCH_SIZE) {
+      const batch = filteredTexts.slice(i, i + GeminiEmbeddingProvider.BATCH_SIZE);
 
-    const embeddings = response.embeddings;
-    if (!embeddings || embeddings.length === 0) {
-      throw new Error('Gemini embedding batch returned no values');
+      if (i > 0) {
+        // Pause between batches to stay within the per-minute quota.
+        await new Promise(resolve => setTimeout(resolve, GeminiEmbeddingProvider.BATCH_DELAY_MS));
+      }
+
+      const response = await this.retryWithBackoff(() =>
+        this.client.models.embedContent({
+          model: this.model,
+          contents: batch,
+          config: {
+            outputDimensionality: this.dimensions,
+          },
+        })
+      );
+
+      const embeddings = response.embeddings;
+      if (!embeddings || embeddings.length === 0) {
+        throw new Error('Gemini embedding batch returned no values');
+      }
+      allEmbeddings.push(...embeddings.map(e => e.values || []));
     }
-    return embeddings.map(e => e.values || []);
+
+    return allEmbeddings;
   }
 
   getDimensions(): number {
