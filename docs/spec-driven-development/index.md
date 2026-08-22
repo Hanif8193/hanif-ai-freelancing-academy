@@ -20,4 +20,4 @@ Learn the methodology that powers professional software development with AI.
 
 ---
 
-*Content for this section will be developed in M3 — Initial Learning Content.*
+*This module introduces specification-driven development and guides you through a complete Spec-Kit project.*

@@ -1104,4 +1104,4 @@ Create or improve 3 portfolio project descriptions with real evidence:
 
 ## What Comes Next
 
-Now that you have a professional profile and portfolio, the next step is understanding the tools that can accelerate your development work. In **Chapter 06: What Are AI Coding Agents?**, you will learn about AI-powered development tools, how they work, and how they can enhance your freelancing productivity.
+Now that you have a professional profile and portfolio, the next step is understanding the tools that can accelerate your development work. In **Chapter 02: What Are AI Coding Agents?**, you will learn about AI-powered development tools, how they work, and how they can enhance your freelancing productivity.

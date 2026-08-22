@@ -74,10 +74,10 @@ export class GeminiEmbeddingProvider implements EmbeddingProvider {
   }
 
   /** Gemini free-tier batch limit is 100 requests per call. */
-  private static readonly BATCH_SIZE = 100;
+  private static readonly BATCH_SIZE = 10;
 
   /** Delay between batches to avoid per-minute rate limits. */
-  private static readonly BATCH_DELAY_MS = 1500;
+  private static readonly BATCH_DELAY_MS = 10000;
 
   async embedBatch(texts: string[]): Promise<number[][]> {
     const filteredTexts = texts.filter(t => t.trim().length > 0);

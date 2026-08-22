@@ -1,9 +1,9 @@
 ---
-sidebar_position: 4
-title: "Chapter 08: AI-Assisted vs Agentic Development"
+sidebar_position: 5
+title: "Chapter 05: AI-Assisted vs Agentic Development"
 ---
 
-# Chapter 08: AI-Assisted vs Agentic Development
+# Chapter 05: AI-Assisted vs Agentic Development
 
 ## Learning Objectives
 
@@ -22,9 +22,9 @@ By the end of this chapter, you will be able to:
 
 ## Curriculum Connection
 
-In Chapter 06: What Are AI Coding Agents?, you learned what AI coding agents are, how the agent loop works, what tools agents use, and why human-in-the-loop matters. In Chapter 07: Git & GitHub for Freelancers, you learned how Git provides the safety and version-control foundation for professional development.
+In Chapter 02: What Are AI Coding Agents?, you learned what AI coding agents are, how the agent loop works, what tools agents use, and why human-in-the-loop matters. In Chapter 04: Git & GitHub for Freelancers, you learned how Git provides the safety and version-control foundation for professional development.
 
-Chapter 08 builds on both. You now know what agents are (Chapter 06) and how to keep your work safe (Chapter 07). This chapter answers the next question: **when do you write code yourself with AI help, and when do you let an AI agent handle the task with your guidance?**
+Chapter 05 builds on both. You now know what agents are (Chapter 02) and how to keep your work safe (Chapter 04). This chapter answers the next question: **when do you write code yourself with AI help, and when do you let an AI agent handle the task with your guidance?**
 
 The distinction between AI-assisted development and agentic development is not academic. It directly affects your productivity, your code quality, your client delivery, and your professional reputation. Choosing the wrong approach for a task wastes time, introduces risk, or both.
 
@@ -383,15 +383,15 @@ Make the final decision. Approve, modify, or reject the agent's work.
 
 ### Step 13: Commit
 
-Commit the verified changes with a clear, descriptive message (connecting to Chapter 07 Git practices).
+Commit the verified changes with a clear, descriptive message (connecting to Chapter 04 Git practices).
 
 ### Step 14: Deliver
 
 Push the changes, create a pull request, or deploy. Communicate with the client about what was done.
 
-### Connection to Chapter 07
+### Connection to Chapter 04
 
-This loop connects directly to the Git workflow from Chapter 07. Every agentic change should follow the professional Git workflow:
+This loop connects directly to the Git workflow from Chapter 04. Every agentic change should follow the professional Git workflow:
 
 ```text
 Clean working tree → Create branch → Agent works → git diff →
@@ -727,7 +727,7 @@ The good context gives the agent everything it needs to produce code that fits t
 
 ## Git and Version Control in AI-Assisted and Agentic Work
 
-This section connects directly to Chapter 07: Git & GitHub for Freelancers. Git is the safety net that makes both AI-assisted and agentic development professional.
+This section connects directly to Chapter 04: Git & GitHub for Freelancers. Git is the safety net that makes both AI-assisted and agentic development professional.
 
 ### The Professional Git Workflow for AI Work
 

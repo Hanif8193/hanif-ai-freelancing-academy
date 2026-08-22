@@ -1,9 +1,9 @@
 ---
-sidebar_position: 2
-title: "Chapter 06: Setting Up VS Code for AI-Powered Development"
+sidebar_position: 3
+title: "Chapter 03: Setting Up VS Code for AI-Powered Development"
 ---
 
-# Chapter 06: Setting Up VS Code for AI-Powered Development
+# Chapter 03: Setting Up VS Code for AI-Powered Development
 
 ## Learning Objectives
 
@@ -507,4 +507,4 @@ After completing this chapter, verify:
 
 ## What Comes Next
 
-In the next chapter, we will explore **Git & GitHub for Freelancers**. You will learn version control essentials and how to collaborate effectively with clients and other developers.
+In the next chapter, we will explore **Chapter 04: Git & GitHub for Freelancers**. You will learn version control essentials and how to collaborate effectively with clients and other developers.

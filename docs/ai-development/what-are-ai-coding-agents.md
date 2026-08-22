@@ -1,9 +1,9 @@
 ---
-sidebar_position: 6
-title: "Chapter 06: What Are AI Coding Agents?"
+sidebar_position: 2
+title: "Chapter 02: What Are AI Coding Agents?"
 ---
 
-# Chapter 06: What Are AI Coding Agents?
+# Chapter 02: What Are AI Coding Agents?
 
 ## Learning Objectives
 
@@ -1117,4 +1117,4 @@ Use this checklist before, during, and after any agent-assisted task:
 
 ## What Comes Next
 
-Now that you understand what AI coding agents are and how to use them responsibly, the next step is setting up your development environment to work with them effectively. In **Chapter 07: Git & GitHub for Freelancers**, you will learn how to use version control to track changes, collaborate with clients, and manage your code professionally — skills that become even more important when working with AI coding agents.
+Now that you understand what AI coding agents are and how to use them responsibly, the next step is setting up your development environment to work with them effectively. In **Chapter 03: Setting Up VS Code for AI-Powered Development**, you will learn how to configure your editor, install essential extensions, and set up AI coding tools for a productive workflow.

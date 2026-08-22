@@ -22,7 +22,7 @@ By the end of this chapter, you will be able to:
 
 ## Curriculum Connection
 
-In Chapter 06: What Are AI Coding Agents?, you learned how agents inspect repositories, plan changes, execute multi-step tasks, and iterate based on feedback. In Chapter 07: Git & GitHub for Freelancers, you learned how Git provides the version-control safety net for professional development. In Chapter 08: AI-Assisted vs Agentic Development, you learned when to write code yourself with AI help and when to let an agent handle the task.
+In Chapter 02: What Are AI Coding Agents?, you learned how agents inspect repositories, plan changes, execute multi-step tasks, and iterate based on feedback. In Chapter 04: Git & GitHub for Freelancers, you learned how Git provides the version-control safety net for professional development. In Chapter 05: AI-Assisted vs Agentic Development, you learned when to write code yourself with AI help and when to let an agent handle the task.
 
 All three chapters share a common thread: **the quality of what you build depends on how well you define what needs to be built.** An agent that receives a vague instruction produces vague code. A developer who starts coding without clear requirements builds the wrong thing. A Git history of poorly defined changes is noise, not documentation.
 

@@ -22,7 +22,7 @@ By the end of this chapter, you will be able to:
 
 ## Curriculum Connection
 
-In Chapter 06: What Are AI Coding Agents?, you learned how agents inspect repositories, plan changes, and iterate based on feedback. In Chapter 07: Git & GitHub for Freelancers, you learned how Git provides version control, review, and rollback. In Chapter 08: AI-Assisted vs Agentic Development, you learned when to write code yourself and when to let an agent handle the task. In Chapter 09: What Is Spec-Driven Development?, you learned the theory and principles of SDD: requirements, specifications, plans, tasks, traceability, and verification.
+In Chapter 02: What Are AI Coding Agents?, you learned how agents inspect repositories, plan changes, and iterate based on feedback. In Chapter 04: Git & GitHub for Freelancers, you learned how Git provides version control, review, and rollback. In Chapter 05: AI-Assisted vs Agentic Development, you learned when to write code yourself and when to let an agent handle the task. In Chapter 09: What Is Spec-Driven Development?, you learned the theory and principles of SDD: requirements, specifications, plans, tasks, traceability, and verification.
 
 Chapter 10 is the hands-on transition. You now have the concepts. This chapter shows you how to apply them in a real project using the Spec-Kit workflow. You will build a complete specification, plan, and task list for a realistic client project, then walk through implementation, verification, and delivery.
 
@@ -34,7 +34,7 @@ Spec-Kit is a structured workflow for specification-driven development. It provi
 
 The value of Spec-Kit is not in the documents themselves. It is in the discipline they enforce. A freelancer who follows the Spec-Kit workflow produces better specifications, writes clearer requirements, creates more accurate plans, and delivers results that match what the client expected.
 
-This chapter walks you through a complete Spec-Kit project. You will start with a client idea, create a constitution, write a specification, build a plan, decompose tasks, implement with AI assistance, verify against the specification, and deliver. Every step connects to the concepts from Chapter 09 and the tools from Chapters 06-08.
+This chapter walks you through a complete Spec-Kit project. You will start with a client idea, create a constitution, write a specification, build a plan, decompose tasks, implement with AI assistance, verify against the specification, and deliver. Every step connects to the concepts from Chapter 09 and the tools from Chapters 02-05.
 
 ## What Is Spec-Kit?
 
@@ -1267,7 +1267,7 @@ Human review remains essential at every stage.
 
 ## Git + Spec-Kit
 
-This section connects directly to Chapter 07: Git & GitHub for Freelancers.
+This section connects directly to Chapter 04: Git & GitHub for Freelancers.
 
 ### Branch Strategy
 
@@ -2211,7 +2211,7 @@ Over time, Spec-Kit builds:
 
 ## What Comes Next
 
-You have completed the core curriculum of Hanif AI Freelancing Academy. You now understand freelancing fundamentals (Chapters 01-04), AI development tools (Chapters 05-08), and Spec-Driven Development with Spec-Kit (Chapters 09-10).
+You have completed the core curriculum of Hanif AI Freelancing Academy. You now understand freelancing fundamentals (Chapters 01-05), AI development tools (Chapters 01-05), and Spec-Driven Development with Spec-Kit (Chapters 09-10).
 
 The learning does not stop here. Your next steps:
 

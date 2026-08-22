@@ -1,9 +1,9 @@
 ---
-sidebar_position: 3
-title: "Chapter 07: Git & GitHub for Freelancers"
+sidebar_position: 4
+title: "Chapter 04: Git & GitHub for Freelancers"
 ---
 
-# Chapter 07: Git & GitHub for Freelancers
+# Chapter 04: Git & GitHub for Freelancers
 
 ## Learning Objectives
 
@@ -24,7 +24,7 @@ By the end of this chapter, you will be able to:
 
 ## Introduction
 
-In the previous chapter, you learned how AI coding agents can inspect repositories, modify code, run commands, and work through development tasks. Chapter 06 taught you that agents can read files, write code, execute tests, and iterate on their work.
+In the previous chapter, you learned how AI coding agents can inspect repositories, modify code, run commands, and work through development tasks. Chapter 02 taught you that agents can read files, write code, execute tests, and iterate on their work.
 
 But here is the critical question: **what happens when an agent makes a change you did not expect?**
 
@@ -486,7 +486,7 @@ git diff --staged   # Review staged changes before committing
 
 ## AI Coding Agents + Git
 
-This section connects Chapter 06 (AI Coding Agents) with Chapter 07 (Git). Git is the safety net that makes AI-assisted development professional and manageable.
+This section connects Chapter 02 (AI Coding Agents) with Chapter 04 (Git). Git is the safety net that makes AI-assisted development professional and manageable.
 
 ### The Safe AI Agent Workflow with Git
 
@@ -1266,4 +1266,4 @@ The freelancers who maintain professional Git practices build a compounding adva
 
 ## What Comes Next
 
-Now that you have a solid foundation in Git and GitHub, the next step is understanding when and how to use different AI development approaches. In **Chapter 08: AI-Assisted vs Agentic Development**, you will learn how to choose between AI-assisted coding (where you write code with AI suggestions) and agentic development (where AI completes tasks with your guidance), and how to combine both approaches effectively in your freelance workflow.
+Now that you have a solid foundation in Git and GitHub, the next step is understanding when and how to use different AI development approaches. In **Chapter 05: AI-Assisted vs Agentic Development**, you will learn how to choose between AI-assisted coding (where you write code with AI suggestions) and agentic development (where AI completes tasks with your guidance), and how to combine both approaches effectively in your freelance workflow.

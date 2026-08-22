@@ -8,18 +8,20 @@ Learn how to leverage AI coding agents and tools to supercharge your development
 
 ## What You'll Learn
 
-- What AI coding agents are
+- Web development fundamentals (HTML, CSS, JavaScript)
+- What AI coding agents are and how they work
 - Setting up your development environment
 - Git & GitHub fundamentals
 - AI-assisted vs agentic development
 
 ## Topics Covered
 
-- What Are AI Coding Agents?
-- Setting Up VS Code
-- Git & GitHub
-- AI-Assisted vs Agentic Development
+- Chapter 01: Web Development Fundamentals for Freelancers
+- Chapter 02: What Are AI Coding Agents?
+- Chapter 03: Setting Up VS Code for AI-Powered Development
+- Chapter 04: Git & GitHub for Freelancers
+- Chapter 05: AI-Assisted vs Agentic Development
 
 ---
 
-*Content for this section will be developed in M3 — Initial Learning Content.*
+*This module covers the essential development tools and AI-powered workflows every freelancer needs.*

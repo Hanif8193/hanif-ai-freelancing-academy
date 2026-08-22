@@ -1,7 +1,7 @@
 // M4 — Ingestion Pipeline
 // Orchestrates document loading, parsing, chunking, and embedding
 
-import type { Chunk, EmbeddingProvider, VectorStore, IngestionResult } from '../types';
+import type { Chunk, ChunkMetadata, EmbeddingProvider, VectorStore, IngestionResult } from '../types';
 import type { RAGConfig } from '../config';
 import { DocumentLoader } from './document-loader';
 import { MarkdownParser } from './markdown-parser';
@@ -53,13 +53,13 @@ export class IngestionPipeline {
       for (let i = 0; i < documents.length; i++) {
         const doc = documents[i];
         try {
-          // Wait for quota reset between documents (skip first document).
-          if (needsInterDocDelay && i > 0) {
+          const didWork = await this.processDocument(doc, result);
+          // Wait for quota reset between documents (only after actual embedding work).
+          if (needsInterDocDelay && i > 0 && didWork) {
             const delayMs = 65_000; // 65 s — slightly over the 60 s quota window
             console.log(`  Waiting ${delayMs / 1000}s for Gemini quota reset...`);
             await new Promise(resolve => setTimeout(resolve, delayMs));
           }
-          await this.processDocument(doc, result);
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error processing ${doc.relativePath}: ${errorMsg}`);
@@ -81,7 +81,7 @@ export class IngestionPipeline {
   private async processDocument(
     doc: { filePath: string; relativePath: string; content: string; frontmatter: Record<string, unknown> },
     result: IngestionResult
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Parse frontmatter for metadata
     const frontmatter = doc.frontmatter as {
       title?: string;
@@ -110,39 +110,40 @@ export class IngestionPipeline {
     
     if (chunks.length === 0) {
       console.log(`No chunks generated for ${doc.relativePath}`);
-      return;
+      return false;
     }
 
     // Filter out empty chunks before embedding
     const validChunks = chunks.filter(chunk => chunk.content.trim().length > 0);
     if (validChunks.length === 0) {
       console.log(`No valid chunks for ${doc.relativePath}`);
-      return;
+      return false;
     }
 
-    // Idempotent check: skip if chunks already exist for this source
+    // Chunk-level resume: skip already-indexed chunks, embed only missing ones
     const normalizedSource = doc.relativePath.replace(/\\/g, '/');
     const existingChunks = await this.vectorStore.get({ sourcePath: normalizedSource });
-    if (existingChunks.length === validChunks.length) {
+    const existingIds = new Set(existingChunks.map(c => c.id));
+    const missingChunks = validChunks.filter(c => !existingIds.has(c.id));
+
+    if (missingChunks.length === 0) {
       console.log(`Skipping ${doc.relativePath} (${existingChunks.length} chunks already indexed)`);
       result.documentsProcessed++;
-      return;
+      return false;
     }
 
-    // Generate embeddings for all chunks
-    console.log(`Generating embeddings for ${validChunks.length} chunks from ${doc.relativePath}...`);
-    const texts = validChunks.map(chunk => chunk.content);
+    console.log(`Embedding ${missingChunks.length}/${validChunks.length} missing chunks from ${doc.relativePath} (${existingChunks.length} already indexed)...`);
+    const texts = missingChunks.map(chunk => chunk.content);
     const embeddings = await this.embeddingProvider.embedBatch(texts);
 
-    // Assign embeddings to chunks
-    for (let i = 0; i < validChunks.length; i++) {
-      validChunks[i].embedding = embeddings[i];
+    for (let i = 0; i < missingChunks.length; i++) {
+      missingChunks[i].embedding = embeddings[i];
     }
 
-    // Upsert into vector store
-    await this.vectorStore.upsert(validChunks);
+    await this.vectorStore.upsert(missingChunks);
     
     result.documentsProcessed++;
-    result.chunksCreated += validChunks.length;
+    result.chunksCreated += missingChunks.length;
+    return true;
   }
 }
